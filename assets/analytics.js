@@ -6,7 +6,7 @@
  * safe to store in this file. No analytics request is made until the visitor
  * explicitly accepts analytics in the banner.
  */
-window.DEUTSCHECHT_ANALYTICS_ID = '';
+window.DEUTSCHECHT_ANALYTICS_ID = 'G-166ZLXWQZK';
 
 (() => {
   const measurementId = window.DEUTSCHECHT_ANALYTICS_ID;
