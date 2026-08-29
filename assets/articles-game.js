@@ -75,9 +75,45 @@
     ['arbeit','die','Qualifikation','Окончание -ion всегда женского рода.','Die Endung -ion ist immer feminin.','die Qualifikat-ion.','die Qualifikat-ion.']
   ].map(([category, article, word, ruleUk, ruleDe, tipUk, tipDe]) => ({ category, article, word, ruleUk, ruleDe, tipUk, tipDe }));
 
+  const ruleText = {
+    uk: { none: 'Надійного правила за закінченням немає — це слово краще вчити разом з артиклем.', compound: 'У складних словах рід визначає остання частина слова.', ung: 'Закінчення -ung майже завжди означає die.', heit: 'Закінчення -heit завжди жіночого роду.', keit: 'Закінчення -keit завжди жіночого роду.', schaft: 'Закінчення -schaft завжди жіночого роду.', ion: 'Закінчення -ion завжди жіночого роду.', taet: 'Закінчення -tät завжди жіночого роду.', ik: 'Закінчення -ik майже завжди жіночого роду.', ei: 'Закінчення -ei завжди жіночого роду.', in: 'Закінчення -in завжди жіночого роду.', ment: 'Закінчення -ment зазвичай середнього роду.', um: 'Закінчення -um зазвичай середнього роду.', infinitive: 'Іменники від дієслів в інфінітиві завжди мають das.', ling: 'Закінчення -ling завжди чоловічого роду.', ismus: 'Закінчення -ismus завжди чоловічого роду.', er: 'Назви людей на -er часто чоловічого роду; жіноча форма зазвичай має -in.' },
+    de: { none: 'Es gibt keine zuverlässige Regel zur Endung – lerne dieses Wort direkt mit Artikel.', compound: 'Bei zusammengesetzten Wörtern bestimmt der letzte Teil das Geschlecht.', ung: 'Die Endung -ung bedeutet fast immer die.', heit: 'Die Endung -heit ist immer feminin.', keit: 'Die Endung -keit ist immer feminin.', schaft: 'Die Endung -schaft ist immer feminin.', ion: 'Die Endung -ion ist immer feminin.', taet: 'Die Endung -tät ist immer feminin.', ik: 'Die Endung -ik ist fast immer feminin.', ei: 'Die Endung -ei ist immer feminin.', in: 'Die Endung -in ist immer feminin.', ment: 'Die Endung -ment ist meistens neutrum.', um: 'Die Endung -um ist meistens neutrum.', infinitive: 'Substantivierte Infinitive haben immer das.', ling: 'Die Endung -ling ist immer maskulin.', ismus: 'Die Endung -ismus ist immer maskulin.', er: 'Personenbezeichnungen auf -er sind oft maskulin; die weibliche Form endet meist auf -in.' }
+  };
+  const extraWordGroups = {
+    essen: [
+      'der|Apfel|none','der|Käse|none','der|Kuchen|none','der|Reis|none','der|Saft|none','der|Salat|none','der|Zucker|none','der|Löffel|none','der|Teller|none','der|Einkauf|compound','der|Geschmack|none','der|Hunger|none','der|Durst|none','der|Joghurt|none',
+      'die|Banane|none','die|Kartoffel|none','die|Suppe|none','die|Milch|none','die|Butter|none','die|Tomate|none','die|Zitrone|none','die|Speise|none','die|Ernährung|ung','die|Mahlzeit|compound','die|Kantine|none','die|Bäckerei|ei','die|Küche|none',
+      'das|Brot|none','das|Ei|none','das|Fleisch|none','das|Gemüse|none','das|Obst|none','das|Wasser|none','das|Öl|none','das|Salz|none','das|Messer|none','das|Restaurant|none','das|Getränk|none','das|Frühstück|compound','das|Mittagessen|compound'
+    ],
+    unterwegs: [
+      'der|Zug|none','der|Bus|none','der|Fahrplan|compound','der|Fahrer|er','der|Flughafen|compound','der|Koffer|none','der|Gehweg|compound','der|Stau|none','der|Ausgang|compound','der|Eingang|compound','der|Bahnsteig|compound','der|Umstieg|none','der|Führerschein|compound','der|Sitzplatz|compound',
+      'die|Bahn|none','die|Haltestelle|compound','die|Fahrkarte|compound','die|Reise|none','die|Kreuzung|ung','die|Ampel|none','die|Verspätung|ung','die|Abfahrt|compound','die|Ankunft|compound','die|Richtung|ung','die|Straßenbahn|compound','die|Tankstelle|compound','die|Ausfahrt|compound',
+      'das|Auto|none','das|Fahrrad|compound','das|Taxi|none','das|Gleis|none','das|Navi|none','das|Verkehrsmittel|compound','das|Abteil|none','das|Gepäck|none','das|Parkhaus|compound','das|Kraftfahrzeug|compound','das|Ticketbüro|compound','das|Stadtzentrum|compound','das|U-Bahn-Netz|compound'
+    ],
+    gesundheit: [
+      'der|Arzt|none','der|Schmerz|none','der|Husten|none','der|Verband|none','der|Notfall|compound','der|Zahnarzt|compound','der|Kopfschmerz|compound','der|Blutdruck|compound','der|Impfstoff|compound','der|Krankenwagen|compound','der|Schnupfen|none','der|Ausschlag|none','der|Befund|none',
+      'die|Apotheke|none','die|Krankheit|heit','die|Versicherung|ung','die|Behandlung|ung','die|Untersuchung|ung','die|Operation|ion','die|Medizin|in','die|Erkältung|ung','die|Gesundheitskarte|compound','die|Überweisung|ung','die|Sprechstunde|compound','die|Verletzung|ung','die|Impfung|ung','die|Diagnose|none',
+      'das|Medikament|ment','das|Krankenhaus|compound','das|Fieber|none','das|Rezept|none','das|Blut|none','das|Pflaster|none','das|Symptom|none','das|Gewicht|none','das|Wartezimmer|compound','das|Röntgenbild|compound','das|Schmerzmittel|compound','das|Gesundheitsamt|compound','das|Krankenbett|compound'
+    ],
+    behoerden: [
+      'der|Pass|none','der|Antrag|none','der|Bescheid|none','der|Brief|none','der|Wohnsitz|compound','der|Nachweis|compound','der|Führerschein|compound','der|Mietvertrag|compound','der|Steuerbescheid|compound','der|Aufenthaltstitel|compound','der|Personalausweis|compound','der|Terminservice|compound','der|Gebührenbescheid|compound','der|Kindergeldantrag|compound',
+      'die|Anmeldung|ung','die|Behörde|none','die|Steuer|none','die|Gebühr|none','die|Unterschrift|compound','die|Aufenthaltserlaubnis|compound','die|Frist|none','die|Staatsangehörigkeit|keit','die|Meldebescheinigung|ung','die|Ausländerbehörde|compound','die|Krankenkasse|compound','die|Rentenversicherung|ung','die|Abmeldung|ung','die|Bescheinigung|ung',
+      'das|Amt|none','das|Formular|none','das|Konto|none','das|Einkommen|infinitive','das|Bürgergeld|compound','das|Kindergeld|compound','das|Zeugnis|none','das|Visum|um','das|Finanzamt|compound','das|Meldeamt|compound','das|Antragsformular|compound','das|Bankkonto|compound'
+    ],
+    deutsch: [
+      'der|Artikel|none','der|Satz|none','der|Text|none','der|Fehler|none','der|Wortschatz|compound','der|Unterricht|none','der|Lehrer|er','der|Kurs|none','der|Akzent|none','der|Ausdruck|none','der|Buchstabe|none','der|Plural|none','der|Singular|none','der|Fortschritt|none',
+      'die|Sprache|none','die|Grammatik|ik','die|Übung|ung','die|Regel|none','die|Prüfung|ung','die|Antwort|none','die|Frage|none','die|Aussprache|compound','die|Bedeutung|ung','die|Erklärung|ung','die|Wiederholung|ung','die|Vokabel|none','die|Kommunikation|ion','die|Schwierigkeit|keit',
+      'das|Wort|none','das|Verb|none','das|Substantiv|none','das|Adjektiv|none','das|Beispiel|none','das|Kapitel|none','das|Thema|none','das|Niveau|none','das|Wörterbuch|compound','das|Lernen|infinitive','das|Alphabet|none','das|Gespräch|none'
+    ]
+  };
+  Object.entries(extraWordGroups).forEach(([category, entries]) => entries.forEach((entry) => {
+    const [article, word, rule] = entry.split('|');
+    words.push({ category, article, word, ruleUk: ruleText.uk[rule], ruleDe: ruleText.de[rule], tipUk: `Вчи як одну пару: ${article} ${word}.`, tipDe: `Lerne es als Wortgruppe: ${article} ${word}.` });
+  }));
+
   const copy = {
-    uk: { kicker: '07 / ARTICLE GAME', title: 'Артиклі без паніки.', intro: 'Обери категорію, вгадай артикль і одразу дізнайся правило або чесну підказку для запам’ятовування.', all: 'Усі категорії', alltag: 'Повсякденне життя', zuhause: 'Вдома', arbeit: 'Робота', score: 'Очки', streak: 'Серія', words: 'слів', choose: 'Обери артикль', next: 'Наступне слово →', correct: '✓ Правильно!', wrong: 'Поки ні. Правильна відповідь:', rule: 'Правило', tip: 'Як запам’ятати', reset: 'Почати спочатку', progress: 'Прогрес у цій сесії' },
-    de: { kicker: '07 / ARTICLE GAME', title: 'Artikel ohne Panik.', intro: 'Wähle eine Kategorie, rate den Artikel und erhalte sofort eine Regel oder eine ehrliche Merkhilfe.', all: 'Alle Kategorien', alltag: 'Alltag', zuhause: 'Zuhause', arbeit: 'Arbeit', score: 'Punkte', streak: 'Serie', words: 'Wörter', choose: 'Wähle den Artikel', next: 'Nächstes Wort →', correct: '✓ Richtig!', wrong: 'Noch nicht. Die richtige Antwort:', rule: 'Regel', tip: 'Merkhilfe', reset: 'Von vorn beginnen', progress: 'Fortschritt in dieser Runde' }
+    uk: { kicker: '07 / ARTICLE GAME', title: 'Артиклі без паніки.', intro: '270 слів: обери категорію, вгадай артикль і одразу дізнайся правило або чесну підказку для запам’ятовування.', nav: 'Артиклі', all: 'Усі категорії', alltag: 'Повсякденне життя', zuhause: 'Вдома', arbeit: 'Робота', essen: 'Їжа', unterwegs: 'У дорозі', gesundheit: 'Здоров’я', behoerden: 'Документи та установи', deutsch: 'Вивчення німецької', score: 'Очки', streak: 'Серія', words: 'слів', choose: 'Обери артикль', next: 'Наступне слово →', correct: '✓ Правильно!', wrong: 'Поки ні. Правильна відповідь:', rule: 'Правило', tip: 'Як запам’ятати', reset: 'Почати спочатку', progress: 'Прогрес у цій сесії' },
+    de: { kicker: '07 / ARTICLE GAME', title: 'Artikel ohne Panik.', intro: '270 Wörter: Wähle eine Kategorie, rate den Artikel und erhalte sofort eine Regel oder eine ehrliche Merkhilfe.', nav: 'Artikel', all: 'Alle Kategorien', alltag: 'Alltag', zuhause: 'Zuhause', arbeit: 'Arbeit', essen: 'Essen', unterwegs: 'Unterwegs', gesundheit: 'Gesundheit', behoerden: 'Dokumente & Behörden', deutsch: 'Deutsch lernen', score: 'Punkte', streak: 'Serie', words: 'Wörter', choose: 'Wähle den Artikel', next: 'Nächstes Wort →', correct: '✓ Richtig!', wrong: 'Noch nicht. Die richtige Antwort:', rule: 'Regel', tip: 'Merkhilfe', reset: 'Von vorn beginnen', progress: 'Fortschritt in dieser Runde' }
   };
 
   let category = 'all';
@@ -138,6 +174,7 @@
 
   function renderLabels() {
     const t = text();
+    document.querySelector('#articleNavLink').textContent = t.nav;
     document.querySelectorAll('[data-article-category]').forEach((button) => { button.textContent = t[button.dataset.articleCategory]; });
     document.querySelector('#articleKicker').textContent = t.kicker;
     document.querySelector('#articleTitle').textContent = t.title;
@@ -148,12 +185,19 @@
   }
 
   function init() {
+    const nav = document.querySelector('nav');
+    if (nav && !document.querySelector('#articleNavLink')) {
+      const link = document.createElement('a');
+      link.id = 'articleNavLink';
+      link.href = '#articles';
+      nav.appendChild(link);
+    }
     const section = document.createElement('section');
     section.id = 'articles';
     section.className = 'articles-game';
     section.innerHTML = `<style>
       .articles-game{background:#f0e9df}.article-layout{display:grid;grid-template-columns:.78fr 1.22fr;gap:22px;margin-top:32px}.article-categories{display:grid;gap:9px;align-content:start}.article-categories button,.article-options button,.article-next,#articleReset{font:800 14px Manrope,Arial;border-radius:13px;cursor:pointer}.article-categories button{padding:14px;text-align:left;background:#fff;border:1px solid var(--line)}.article-categories button.active{background:var(--gold);border-color:var(--ink);box-shadow:3px 3px 0 var(--ink)}.article-panel{background:#fffdf8;border:1px solid var(--line);border-radius:23px;padding:28px;box-shadow:var(--shadow)}.article-stats{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:20px}.article-stat{background:var(--ink);color:#fff;padding:8px 11px;border-radius:9px;font:800 12px Manrope,Arial}.article-word{font-size:clamp(34px,5vw,52px);font-weight:800;letter-spacing:-2px;margin:8px 0}.article-word span{color:var(--red)}.article-prompt{color:var(--muted);font-size:13px}.article-options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}.article-options button{padding:15px;background:#fff;border:1px solid var(--line);font-size:19px}.article-options button:hover:not(:disabled){border-color:var(--ink);background:var(--gold)}.article-options .is-correct{background:#e3f2d5;border-color:#397218}.article-options .is-wrong{background:#ffe0dc;border-color:var(--red)}.article-feedback{min-height:42px;font-size:13px;line-height:1.65}.article-feedback strong{display:block;color:#397218}.article-rule,.article-tip{margin-top:8px;padding:10px 12px;border-left:3px solid var(--gold);background:#fff8ec}.article-tip{border-left-color:var(--red)}.article-next,#articleReset{border:0;padding:11px 15px;background:var(--ink);color:#fff;margin-top:17px}.article-bottom{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-top:14px;color:var(--muted);font-size:12px}.article-bottom button{margin-top:0;background:#fff;color:var(--ink);border:1px solid var(--line)}@media(max-width:850px){.article-layout{grid-template-columns:1fr}.article-categories{grid-template-columns:1fr 1fr}.article-categories button:last-child{grid-column:span 2}}@media(max-width:520px){.article-panel{padding:20px}.article-options{gap:7px}.article-bottom{align-items:flex-start;flex-direction:column}.article-categories{grid-template-columns:1fr}.article-categories button:last-child{grid-column:auto}}</style>
-      <div class="wrap"><span class="kicker" id="articleKicker"></span><h2 id="articleTitle"></h2><p class="intro" id="articleIntro"></p><div class="article-layout"><div class="article-categories"><button class="active" data-article-category="all"></button><button data-article-category="alltag"></button><button data-article-category="zuhause"></button><button data-article-category="arbeit"></button></div><div class="article-panel"><div class="article-stats"><span class="article-stat" id="articleScore"></span><span class="article-stat" id="articleStreak"></span></div><div id="articleCard"></div><div class="article-bottom"><span id="articleProgress"></span><button id="articleReset" type="button"></button></div></div></div></div>`;
+      <div class="wrap"><span class="kicker" id="articleKicker"></span><h2 id="articleTitle"></h2><p class="intro" id="articleIntro"></p><div class="article-layout"><div class="article-categories"><button class="active" data-article-category="all"></button><button data-article-category="alltag"></button><button data-article-category="zuhause"></button><button data-article-category="arbeit"></button><button data-article-category="essen"></button><button data-article-category="unterwegs"></button><button data-article-category="gesundheit"></button><button data-article-category="behoerden"></button><button data-article-category="deutsch"></button></div><div class="article-panel"><div class="article-stats"><span class="article-stat" id="articleScore"></span><span class="article-stat" id="articleStreak"></span></div><div id="articleCard"></div><div class="article-bottom"><span id="articleProgress"></span><button id="articleReset" type="button"></button></div></div></div></div>`;
     const exercises = document.querySelector('#exercises');
     (exercises || document.querySelector('main')).before(section);
     document.querySelectorAll('[data-article-category]').forEach((button) => button.addEventListener('click', () => {
