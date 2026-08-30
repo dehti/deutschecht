@@ -112,8 +112,8 @@
   }));
 
   const copy = {
-    uk: { kicker: '07 / ARTICLE GAME', title: 'Артиклі без паніки.', intro: '270 слів: обери категорію, вгадай артикль і одразу дізнайся правило або чесну підказку для запам’ятовування.', nav: 'Артиклі', all: 'Усі категорії', alltag: 'Повсякденне життя', zuhause: 'Вдома', arbeit: 'Робота', essen: 'Їжа', unterwegs: 'У дорозі', gesundheit: 'Здоров’я', behoerden: 'Документи та установи', deutsch: 'Вивчення німецької', score: 'Очки', streak: 'Серія', words: 'слів', choose: 'Обери артикль', next: 'Наступне слово →', correct: '✓ Правильно!', wrong: 'Поки ні. Правильна відповідь:', rule: 'Правило', tip: 'Як запам’ятати', reset: 'Почати спочатку', progress: 'Прогрес у цій сесії' },
-    de: { kicker: '07 / ARTICLE GAME', title: 'Artikel ohne Panik.', intro: '270 Wörter: Wähle eine Kategorie, rate den Artikel und erhalte sofort eine Regel oder eine ehrliche Merkhilfe.', nav: 'Artikel', all: 'Alle Kategorien', alltag: 'Alltag', zuhause: 'Zuhause', arbeit: 'Arbeit', essen: 'Essen', unterwegs: 'Unterwegs', gesundheit: 'Gesundheit', behoerden: 'Dokumente & Behörden', deutsch: 'Deutsch lernen', score: 'Punkte', streak: 'Serie', words: 'Wörter', choose: 'Wähle den Artikel', next: 'Nächstes Wort →', correct: '✓ Richtig!', wrong: 'Noch nicht. Die richtige Antwort:', rule: 'Regel', tip: 'Merkhilfe', reset: 'Von vorn beginnen', progress: 'Fortschritt in dieser Runde' }
+    uk: { kicker: '07 / ARTICLE GAME', title: 'Артиклі без паніки.', intro: '270 слів: обери категорію, вгадай артикль і одразу дізнайся правило або чесну підказку для запам’ятовування.', nav: 'Артиклі', all: 'Усі категорії', alltag: 'Повсякденне життя', zuhause: 'Вдома', arbeit: 'Робота', essen: 'Їжа', unterwegs: 'У дорозі', gesundheit: 'Здоров’я', behoerden: 'Документи та установи', deutsch: 'Вивчення німецької', score: 'Очки', streak: 'Серія', words: 'слів', choose: 'Обери артикль', next: 'Наступне слово →', correct: '✓ Правильно!', wrong: 'Поки ні. Правильна відповідь:', rule: 'Правило', tip: 'Як запам’ятати', reset: 'Почати спочатку', progress: 'Прогрес у цій сесії', daily: 'Челендж дня: 10 слів', dailyHint: 'Ті самі 10 слів для всіх сьогодні. Скільки вгадаєш?', dailyProgress: 'Челендж дня', result: 'Твій результат', share: 'Поділитися результатом', copied: 'Результат скопійовано!', finish: 'Подивитися результат →', practice: 'До звичайного тренування', perfect: 'Ідеально! 10 з 10 🔥', shareText: 'Я пройшов(ла) челендж дня з артиклів DeutschEcht: {score}/10. Спробуй і ти!' },
+    de: { kicker: '07 / ARTICLE GAME', title: 'Artikel ohne Panik.', intro: '270 Wörter: Wähle eine Kategorie, rate den Artikel und erhalte sofort eine Regel oder eine ehrliche Merkhilfe.', nav: 'Artikel', all: 'Alle Kategorien', alltag: 'Alltag', zuhause: 'Zuhause', arbeit: 'Arbeit', essen: 'Essen', unterwegs: 'Unterwegs', gesundheit: 'Gesundheit', behoerden: 'Dokumente & Behörden', deutsch: 'Deutsch lernen', score: 'Punkte', streak: 'Serie', words: 'Wörter', choose: 'Wähle den Artikel', next: 'Nächstes Wort →', correct: '✓ Richtig!', wrong: 'Noch nicht. Die richtige Antwort:', rule: 'Regel', tip: 'Merkhilfe', reset: 'Von vorn beginnen', progress: 'Fortschritt in dieser Runde', daily: 'Tages-Challenge: 10 Wörter', dailyHint: 'Heute bekommen alle dieselben 10 Wörter. Wie viele schaffst du?', dailyProgress: 'Tages-Challenge', result: 'Dein Ergebnis', share: 'Ergebnis teilen', copied: 'Ergebnis kopiert!', finish: 'Ergebnis ansehen →', practice: 'Zum freien Training', perfect: 'Perfekt! 10 von 10 🔥', shareText: 'Ich habe die DeutschEcht-Artikel-Challenge geschafft: {score}/10. Probier es auch!' }
   };
 
   let category = 'all';
@@ -122,13 +122,54 @@
   let score = 0;
   let streak = 0;
   let used = [];
+  let dailyMode = false;
+  let dailyWords = [];
+  let dailyIndex = 0;
 
   const language = () => document.documentElement.lang === 'de' ? 'de' : 'uk';
   const text = () => copy[language()];
   const event = (name, params) => { if (typeof window.gtag === 'function') window.gtag('event', name, params); };
   const pool = () => words.filter((item) => category === 'all' || item.category === category);
 
+  function dayKey() {
+    const now = new Date();
+    return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
+  }
+
+  function dailySelection() {
+    const uniqueWords = [...new Map(words.map((item) => [item.word, item])).values()];
+    let seed = [...dayKey()].reduce((total, character) => ((total * 31) + character.charCodeAt(0)) >>> 0, 17);
+    const random = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+    const selection = [];
+    const choices = [...uniqueWords];
+    while (selection.length < 10 && choices.length) selection.push(choices.splice(Math.floor(random() * choices.length), 1)[0]);
+    return selection;
+  }
+
+  function startDaily() {
+    dailyMode = true;
+    dailyWords = dailySelection();
+    dailyIndex = 0;
+    score = 0;
+    streak = 0;
+    used = [];
+    current = dailyWords[0];
+    answered = false;
+    renderCard();
+    updateStats();
+    event('article_daily_started', { word_count: dailyWords.length });
+  }
+
   function nextWord() {
+    if (dailyMode) {
+      if (dailyIndex >= dailyWords.length - 1) { renderDailyResult(); return; }
+      dailyIndex += 1;
+      current = dailyWords[dailyIndex];
+      answered = false;
+      renderCard();
+      updateStats();
+      return;
+    }
     const available = pool().filter((item) => !used.includes(item.word));
     if (!available.length) used = [];
     const choices = available.length ? available : pool();
@@ -142,7 +183,7 @@
     const t = text();
     const card = document.querySelector('#articleCard');
     if (!card || !current) return;
-    card.innerHTML = `<div class="article-word"><span>___</span> ${current.word}</div><p class="article-prompt">${t.choose}</p><div class="article-options"><button data-article="der">der</button><button data-article="die">die</button><button data-article="das">das</button></div><div class="article-feedback" aria-live="polite"></div><button class="article-next" type="button" hidden>${t.next}</button>`;
+    card.innerHTML = `${dailyMode ? `<div class="daily-label">☀️ ${t.dailyProgress} · ${dailyIndex + 1}/10</div>` : ''}<div class="article-word"><span>___</span> ${current.word}</div><p class="article-prompt">${t.choose}</p><div class="article-options"><button data-article="der">der</button><button data-article="die">die</button><button data-article="das">das</button></div><div class="article-feedback" aria-live="polite"></div><button class="article-next" type="button" hidden>${dailyMode && dailyIndex === dailyWords.length - 1 ? t.finish : t.next}</button>`;
     card.querySelectorAll('[data-article]').forEach((button) => button.addEventListener('click', () => answer(button.dataset.article, button)));
     card.querySelector('.article-next').addEventListener('click', nextWord);
   }
@@ -165,11 +206,27 @@
     event('article_answered', { category: current.category, result: correct ? 'correct' : 'wrong' });
   }
 
+  function renderDailyResult() {
+    const t = text();
+    const correctAnswers = score / 10;
+    const message = correctAnswers === 10 ? t.perfect : `${t.result}: ${correctAnswers}/10`;
+    const shareText = t.shareText.replace('{score}', correctAnswers);
+    document.querySelector('#articleCard').innerHTML = `<div class="daily-result"><span>☀️</span><h3>${message}</h3><p>${t.dailyHint}</p><button class="article-share" type="button">${t.share}</button><button class="article-practice" type="button">${t.practice}</button></div>`;
+    document.querySelector('.article-share').addEventListener('click', async () => {
+      try {
+        if (navigator.share) await navigator.share({ title: 'DeutschEcht', text: shareText, url: window.location.href.split('#')[0] + '#articles' });
+        else { await navigator.clipboard.writeText(`${shareText} ${window.location.href.split('#')[0]}#articles`); document.querySelector('.article-share').textContent = t.copied; }
+      } catch (_) { /* The visitor can close the native share dialog without an error message. */ }
+    });
+    document.querySelector('.article-practice').addEventListener('click', () => { dailyMode = false; score = 0; streak = 0; used = []; nextWord(); });
+    event('article_daily_completed', { score: correctAnswers, total: 10 });
+  }
+
   function updateStats() {
     const t = text();
     document.querySelector('#articleScore').textContent = `${score} ${t.score}`;
     document.querySelector('#articleStreak').textContent = `🔥 ${streak} ${t.streak}`;
-    document.querySelector('#articleProgress').textContent = `${t.progress}: ${Math.min(used.length, pool().length)} / ${pool().length} ${t.words}`;
+    document.querySelector('#articleProgress').textContent = dailyMode ? `${t.dailyProgress}: ${dailyIndex + 1} / 10` : `${t.progress}: ${Math.min(used.length, pool().length)} / ${pool().length} ${t.words}`;
   }
 
   function renderLabels() {
@@ -180,6 +237,9 @@
     document.querySelector('#articleTitle').textContent = t.title;
     document.querySelector('#articleIntro').textContent = t.intro;
     document.querySelector('#articleReset').textContent = t.reset;
+    document.querySelector('#articleDailyTitle').textContent = t.daily;
+    document.querySelector('#articleDaily').textContent = t.daily;
+    document.querySelector('#articleDailyHint').textContent = t.dailyHint;
     updateStats();
     if (current) renderCard();
   }
@@ -196,16 +256,17 @@
     section.id = 'articles';
     section.className = 'articles-game';
     section.innerHTML = `<style>
-      .articles-game{background:#f0e9df}.article-layout{display:grid;grid-template-columns:.78fr 1.22fr;gap:22px;margin-top:32px}.article-categories{display:grid;gap:9px;align-content:start}.article-categories button,.article-options button,.article-next,#articleReset{font:800 14px Manrope,Arial;border-radius:13px;cursor:pointer}.article-categories button{padding:14px;text-align:left;background:#fff;border:1px solid var(--line)}.article-categories button.active{background:var(--gold);border-color:var(--ink);box-shadow:3px 3px 0 var(--ink)}.article-panel{background:#fffdf8;border:1px solid var(--line);border-radius:23px;padding:28px;box-shadow:var(--shadow)}.article-stats{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:20px}.article-stat{background:var(--ink);color:#fff;padding:8px 11px;border-radius:9px;font:800 12px Manrope,Arial}.article-word{font-size:clamp(34px,5vw,52px);font-weight:800;letter-spacing:-2px;margin:8px 0}.article-word span{color:var(--red)}.article-prompt{color:var(--muted);font-size:13px}.article-options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}.article-options button{padding:15px;background:#fff;border:1px solid var(--line);font-size:19px}.article-options button:hover:not(:disabled){border-color:var(--ink);background:var(--gold)}.article-options .is-correct{background:#e3f2d5;border-color:#397218}.article-options .is-wrong{background:#ffe0dc;border-color:var(--red)}.article-feedback{min-height:42px;font-size:13px;line-height:1.65}.article-feedback strong{display:block;color:#397218}.article-rule,.article-tip{margin-top:8px;padding:10px 12px;border-left:3px solid var(--gold);background:#fff8ec}.article-tip{border-left-color:var(--red)}.article-next,#articleReset{border:0;padding:11px 15px;background:var(--ink);color:#fff;margin-top:17px}.article-bottom{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-top:14px;color:var(--muted);font-size:12px}.article-bottom button{margin-top:0;background:#fff;color:var(--ink);border:1px solid var(--line)}@media(max-width:850px){.article-layout{grid-template-columns:1fr}.article-categories{grid-template-columns:1fr 1fr}.article-categories button:last-child{grid-column:span 2}}@media(max-width:520px){.article-panel{padding:20px}.article-options{gap:7px}.article-bottom{align-items:flex-start;flex-direction:column}.article-categories{grid-template-columns:1fr}.article-categories button:last-child{grid-column:auto}}</style>
-      <div class="wrap"><span class="kicker" id="articleKicker"></span><h2 id="articleTitle"></h2><p class="intro" id="articleIntro"></p><div class="article-layout"><div class="article-categories"><button class="active" data-article-category="all"></button><button data-article-category="alltag"></button><button data-article-category="zuhause"></button><button data-article-category="arbeit"></button><button data-article-category="essen"></button><button data-article-category="unterwegs"></button><button data-article-category="gesundheit"></button><button data-article-category="behoerden"></button><button data-article-category="deutsch"></button></div><div class="article-panel"><div class="article-stats"><span class="article-stat" id="articleScore"></span><span class="article-stat" id="articleStreak"></span></div><div id="articleCard"></div><div class="article-bottom"><span id="articleProgress"></span><button id="articleReset" type="button"></button></div></div></div></div>`;
+      .articles-game{background:#f0e9df}.article-layout{display:grid;grid-template-columns:.78fr 1.22fr;gap:22px;margin-top:32px}.article-categories{display:grid;gap:9px;align-content:start}.article-categories button,.article-options button,.article-next,#articleReset,#articleDaily,.article-share,.article-practice{font:800 14px Manrope,Arial;border-radius:13px;cursor:pointer}.article-categories button{padding:14px;text-align:left;background:#fff;border:1px solid var(--line)}.article-categories button.active{background:var(--gold);border-color:var(--ink);box-shadow:3px 3px 0 var(--ink)}.article-panel{background:#fffdf8;border:1px solid var(--line);border-radius:23px;padding:28px;box-shadow:var(--shadow)}.article-stats{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:20px}.article-stat{background:var(--ink);color:#fff;padding:8px 11px;border-radius:9px;font:800 12px Manrope,Arial}.daily-box{margin:0 0 20px;padding:15px;border:2px solid var(--ink);border-radius:15px;background:var(--gold)}.daily-box b{display:block;font-size:15px}.daily-box p{margin:4px 0 10px;font-size:12px}.daily-box button,.article-share{border:0;background:var(--ink);color:#fff;padding:10px 13px}.daily-label{font:800 12px Manrope,Arial;color:var(--red)}.article-word{font-size:clamp(34px,5vw,52px);font-weight:800;letter-spacing:-2px;margin:8px 0}.article-word span{color:var(--red)}.article-prompt{color:var(--muted);font-size:13px}.article-options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}.article-options button{padding:15px;background:#fff;border:1px solid var(--line);font-size:19px}.article-options button:hover:not(:disabled){border-color:var(--ink);background:var(--gold)}.article-options .is-correct{background:#e3f2d5;border-color:#397218}.article-options .is-wrong{background:#ffe0dc;border-color:var(--red)}.article-feedback{min-height:42px;font-size:13px;line-height:1.65}.article-feedback strong{display:block;color:#397218}.article-rule,.article-tip{margin-top:8px;padding:10px 12px;border-left:3px solid var(--gold);background:#fff8ec}.article-tip{border-left-color:var(--red)}.article-next,#articleReset{border:0;padding:11px 15px;background:var(--ink);color:#fff;margin-top:17px}.article-bottom{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-top:14px;color:var(--muted);font-size:12px}.article-bottom button{margin-top:0;background:#fff;color:var(--ink);border:1px solid var(--line)}.daily-result{text-align:center;padding:18px 0}.daily-result>span{font-size:44px}.daily-result h3{font-size:27px;margin:6px 0}.daily-result p{color:var(--muted);font-size:13px}.article-practice{border:1px solid var(--line);background:#fff;color:var(--ink);padding:10px 13px;margin-left:8px}@media(max-width:850px){.article-layout{grid-template-columns:1fr}.article-categories{grid-template-columns:1fr 1fr}.article-categories button:last-child{grid-column:span 2}}@media(max-width:520px){.article-panel{padding:20px}.article-options{gap:7px}.article-bottom{align-items:flex-start;flex-direction:column}.article-categories{grid-template-columns:1fr}.article-categories button:last-child{grid-column:auto}.article-practice{margin:8px 0 0}}</style>
+      <div class="wrap"><span class="kicker" id="articleKicker"></span><h2 id="articleTitle"></h2><p class="intro" id="articleIntro"></p><div class="article-layout"><div class="article-categories"><button class="active" data-article-category="all"></button><button data-article-category="alltag"></button><button data-article-category="zuhause"></button><button data-article-category="arbeit"></button><button data-article-category="essen"></button><button data-article-category="unterwegs"></button><button data-article-category="gesundheit"></button><button data-article-category="behoerden"></button><button data-article-category="deutsch"></button></div><div class="article-panel"><div class="daily-box"><b id="articleDailyTitle"></b><p id="articleDailyHint"></p><button id="articleDaily" type="button"></button></div><div class="article-stats"><span class="article-stat" id="articleScore"></span><span class="article-stat" id="articleStreak"></span></div><div id="articleCard"></div><div class="article-bottom"><span id="articleProgress"></span><button id="articleReset" type="button"></button></div></div></div></div>`;
     const exercises = document.querySelector('#exercises');
     (exercises || document.querySelector('main')).before(section);
     document.querySelectorAll('[data-article-category]').forEach((button) => button.addEventListener('click', () => {
-      category = button.dataset.articleCategory; used = []; score = 0; streak = 0;
+      dailyMode = false; category = button.dataset.articleCategory; used = []; score = 0; streak = 0;
       document.querySelectorAll('[data-article-category]').forEach((item) => item.classList.toggle('active', item === button));
       nextWord(); event('article_category_selected', { category });
     }));
-    document.querySelector('#articleReset').addEventListener('click', () => { score = 0; streak = 0; used = []; nextWord(); });
+    document.querySelector('#articleReset').addEventListener('click', () => { if (dailyMode) startDaily(); else { score = 0; streak = 0; used = []; nextWord(); } });
+    document.querySelector('#articleDaily').addEventListener('click', startDaily);
     document.querySelector('#lang')?.addEventListener('click', () => setTimeout(renderLabels, 0));
     renderLabels();
     nextWord();
